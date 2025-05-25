@@ -3,7 +3,7 @@ resource "aws_security_group" "sg" {
   description = "Usado no EKS com 6/7SOAT"
   vpc_id      = ""
 
-  # Inbound
+  # In
   ingress {
     description = "HTTP"
     from_port   = 80
@@ -12,7 +12,7 @@ resource "aws_security_group" "sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Outbound
+  # Out
   egress {
     description = "All"
     from_port   = 0
