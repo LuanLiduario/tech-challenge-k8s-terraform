@@ -1,30 +1,30 @@
-name: Create Infra AWS
+name: CI
 
 on:
-  push:
-    branches:
-      - teste
-#      - main
+  pull_request:
 
 env:
-  REGION_DEFAULT: us-east-1
+  AWS_REGION: us-east-1
 
 jobs:
-  create_infra:
-    name: terraform
+  ci:
+    name: Continuos Integration
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ID }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ env.REGION_DEFAULT }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: BuildAndPush Dockerfile
+        run: |
+          docker build -t image-docker .
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
@@ -46,7 +46,3 @@ jobs:
         id: plan
         run: terraform plan -out=tfplan -no-color -input=false
         continue-on-error: true
-
-      - name: Terraform Apply
-        id: apply
-        run: terraform apply -input=false -auto-approve
