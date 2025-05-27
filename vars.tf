@@ -23,7 +23,7 @@ variable "instanceType" {
 }
 
 variable "principalArn" {
-  default = "arn:aws:sts::039539140324:assumed-role/voclabs/user4095643=luanliduario@gmail.com"
+  default = "arn:aws:iam::039539140324:role/voclabs"
 }
 
 variable "policyArn" {
