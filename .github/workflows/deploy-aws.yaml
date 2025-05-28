@@ -3,8 +3,8 @@ name: Deploy AWS Production - NETT
 on:
   push:
     branches:
-      - main
-
+#      - main
+      -teste
 env:
   AWS_REGION: us-east-1
   CLUSTER_NAME: EKS-FIAP

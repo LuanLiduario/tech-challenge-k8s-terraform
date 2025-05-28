@@ -3,7 +3,7 @@ variable "regionDefault" {
 }
 
 variable "projectName" {
-  default = "EKS-FIAP"
+  default = "EKS-FIAP-V2"
 }
 
 variable "labRole" {
@@ -23,7 +23,7 @@ variable "instanceType" {
 }
 
 variable "principalArn" {
-  default = "arn:aws:iam::039539140324:role/LabRole"
+  default = "arn:aws:iam::039539140324:role/voclabs"
 }
 
 variable "policyArn" {
