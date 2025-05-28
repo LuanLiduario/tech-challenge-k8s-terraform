@@ -1,7 +1,11 @@
-output "cluster_name" {
-  value = aws_eks_cluster.eks-cluster.name
-}
+resource "aws_eks_access_policy_association" "eks_access_policy" {
+  cluster_name  = aws_eks_cluster.eks-cluster.name
+  policy_arn    = var.policyArn
+  principal_arn = var.principalArn
 
-output "vpc_id" {
-  value = data.aws_vpc.vpc.id
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.eks_access_entry]
 }
