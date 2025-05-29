@@ -1,10 +1,10 @@
-name: Deploy AWS Production - NETT
+name: Deploy AWS Production - FASTFOOD
 
 on:
   push:
     branches:
-#      - main
-      -teste
+      - main
+
 env:
   AWS_REGION: us-east-1
   CLUSTER_NAME: EKS-FIAP
@@ -13,6 +13,7 @@ jobs:
   deploy-production:
     name: Deploy EKS Production
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -23,7 +24,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login ECR
         run: |
@@ -33,19 +34,29 @@ jobs:
           --password-stdin \
           759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-      - name: BuildAndPush Dockerfile
+      - name: Build and Push Docker Image
         run: |
-          docker build -t 6nett . && \
-          docker tag 6nett:latest 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/6nett:latest && \
-          docker push 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/6nett:latest
+          docker build -t fastfood-app . && \
+          docker tag fastfood-app:latest 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/fastfood-app:latest && \
+          docker push 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/fastfood-app:latest
 
-      - name: Update Kube Config
+      - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
-          --name ${{ env.CLUSTER_NAME }} \
-          --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.CLUSTER_NAME }}
 
-      - name: Kube Apply
+      - name: Create Secrets in Kubernetes
         run: |
-          kubectl apply -f k8s/eks-deployment.yaml
-          kubectl apply -f k8s/eks-svc.yaml
+          kubectl create secret generic fast-food-secrets \
+            --from-literal=DB_USER=${{ secrets.DB_USER }} \
+            --from-literal=DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            --from-literal=SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply ConfigMap and Deployments
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
