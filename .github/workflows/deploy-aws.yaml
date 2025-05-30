@@ -8,6 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   CLUSTER_NAME: EKS-FIAP
+  ECR_URI: 039539140324.dkr.ecr.us-east-1.amazonaws.com/fastfood-app
 
 jobs:
   deploy-production:
@@ -32,13 +33,13 @@ jobs:
           --region ${{ env.AWS_REGION }} | \
           docker login --username AWS \
           --password-stdin \
-          759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          ${{ env.ECR_URI }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t fastfood-app . && \
-          docker tag fastfood-app:latest 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/fastfood-app:latest && \
-          docker push 759212231558.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/fastfood-app:latest
+          docker build -t fastfood-app .
+          docker tag fastfood-app:latest ${{ env.ECR_URI }}:latest
+          docker push ${{ env.ECR_URI }}:latest
 
       - name: Update kubeconfig
         run: |
@@ -54,9 +55,18 @@ jobs:
             --from-literal=SECRET_KEY=${{ secrets.SECRET_KEY }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Apply ConfigMap and Deployments
+      - name: Apply Kubernetes Resources
         run: |
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml
+          kubectl apply -f k8s/migrate-job.yaml
+
+      - name: Run Database Migrations Job
+        run: |
+          kubectl apply -f k8s/migrate-job.yaml
+          kubectl wait --for=condition=complete --timeout=60s job/fastfood-migrate-job || {
+            echo "Migration job failed or timed out" && kubectl logs job/fastfood-migrate-job && exit 1;
+          }
+          kubectl delete job fastfood-migrate-job || true

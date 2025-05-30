@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: fastfood-web
-          image: luanliduario/fast-food:latest
+          image: 039539140324.dkr.ecr.us-east-1.amazonaws.com/fastfood-app:latest
           ports:
             - containerPort: 8000
           command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
