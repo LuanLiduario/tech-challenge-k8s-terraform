@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  CLUSTER_NAME: EKS-FIAP
+  CLUSTER_NAME: EKS-FIAP-V3
   ECR_URI: 039539140324.dkr.ecr.us-east-1.amazonaws.com/fastfood-app
 
 jobs:
