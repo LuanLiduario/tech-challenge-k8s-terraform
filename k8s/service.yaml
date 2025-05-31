@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: fast-food-service
 spec:
+  type: LoadBalancer
   selector:
-    app: fast-food
+    app: fast-food-app
   ports:
     - protocol: TCP
-      port: 80         # Porta que o serviço irá expor
-      targetPort: 8000 # Porta do container (conforme definido no Deployment)
-  type: ClusterIP      #  LoadBalancer se precisar expor externamente
+      port: 80
+      targetPort: 8000
