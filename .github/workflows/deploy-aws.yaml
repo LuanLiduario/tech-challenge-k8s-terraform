@@ -53,6 +53,7 @@ jobs:
             --from-literal=DB_USER=${{ secrets.DB_USER }} \
             --from-literal=DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --from-literal=SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --from-literal=AUTH_ENDPOINT=${{ secrets.AUTH_ENDPOINT }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply Kubernetes Resources
