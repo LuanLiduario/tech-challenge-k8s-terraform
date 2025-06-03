@@ -6,9 +6,10 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AUTH_ENDPOINT: ${{ secrets.AUTH_ENDPOINT }}
   CLUSTER_NAME: EKS-FIAP-V3
-  ECR_URI: 039539140324.dkr.ecr.us-east-1.amazonaws.com/fastfood-app
+  ECR_URI: ${{ secrets.ECR_URI }}
 
 jobs:
   deploy-production:
